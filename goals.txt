@@ -17,7 +17,7 @@ A high-end spoofer must intercept every communication channel between the hardwa
 ### Phase 3: Forensic Trace Destruction (The "Ghost" Scrub)
 Even with perfect hardware spoofing, "telemetry traces" will get a user re-banned. You must include a military-grade cleaner.
 
-1.  **NTFS USN Journal Wipe:** Windows logs every file creation and deletion in a hidden journal. The cleaner must programmatically wipe this journal so EAC cannot see that you recently deleted cheat logs or spoofers.
+1.  **NTFS USN Journal Wipe:** Windows logs every file creation and deletion in a hidden journal. The cleaner must programmatically wipe this journal so Project1 cannot see that you recently deleted cheat logs or spoofers.
 2.  **Registry Transaction Logs:** Standard cleaners miss `.blf` and `.regtrans-ms` files in `System32`. These files store "History" that persists even after you delete a registry key. You must scrub these at the filesystem level.
 3.  **MountPoints2 & WMI Cache:** Clear every registry record of previously connected drives and rebuild the WMI (Windows Management Instrumentation) repository to ensure no cached "real" hardware IDs remain.
 4.  **EFI Partition Scrubbing:** Mount the hidden EFI boot partition and delete any tracking files (`.dat`, `.sys`, or `.bin`) that EAC may have hidden there during a previous ban.
@@ -28,7 +28,7 @@ Even with perfect hardware spoofing, "telemetry traces" will get a user re-banne
 Advanced Anti-Cheats look for the "overhead" caused by a spoofer.
 
 1.  **RDTSC Spoofing (Timing Attacks):** 
-    *   **The Problem:** Anti-cheats measure the time it takes to execute an instruction. If a Hypervisor intercepts a call, it takes a few extra nanoseconds. EAC detects this delay.
+    *   **The Problem:** Anti-cheats measure the time it takes to execute an instruction. If a Hypervisor intercepts a call, it takes a few extra nanoseconds. Project1 detects this delay.
     *   **The Solution:** The Hypervisor must intercept the `RDTSC` (Read Time-Stamp Counter) instruction and "fake" the clock cycles to subtract the time taken by the spoofer, making the operation look instantaneous.
 2.  **Realistic Serial Generation:** 
     *   Never use random strings like `123456`. The tool must contain a database of real manufacturer prefixes (e.g., Samsung, ASUS, Western Digital) and generate serials that follow the exact character-count and checksum logic of those brands.
@@ -36,11 +36,11 @@ Advanced Anti-Cheats look for the "overhead" caused by a spoofer.
 ---
 
 ### Phase 5: Stealth Deployment (The Loader)
-You cannot use a standard "driver loader" because EAC blocks them.
+You cannot use a standard "driver loader" because Project1 blocks them.
 
 1.  **Manual Mapping (BYOVD):** Use a "Bring Your Own Vulnerable Driver" exploit. Use a legitimately signed (but old/vulnerable) driver from a company like Intel or Dell to "knock a hole" in the kernel.
 2.  **Kernel APC Injection:** Inject the spoofer code into a trusted system process (like `lsass.exe`) using an Asynchronous Procedure Call (APC).
-3.  **Wiping the "MmUnloadedDrivers" List:** After the spoofer is loaded, you must erase its name from the Windows list of unloaded drivers, so EAC doesn't see that a "suspicious" driver was recently running.
+3.  **Wiping the "MmUnloadedDrivers" List:** After the spoofer is loaded, you must erase its name from the Windows list of unloaded drivers, so Project1 doesn't see that a "suspicious" driver was recently running.
 
 ---
 
