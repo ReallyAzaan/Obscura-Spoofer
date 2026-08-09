@@ -1,0 +1,56 @@
+### Phase 2: Total Hardware Virtualization
+A high-end spoofer must intercept every communication channel between the hardware and the software.
+
+1.  **Storage Virtualization (Deep IOCTL):** 
+    *   **Target:** `storport.sys` and `stornvme.sys`.
+    *   **Action:** Hook the **Completion Routines**. When the disk driver sends a serial number back to the game, the spoofer intercepts the data packet in memory and replaces the serial string with a randomized, realistically formatted one.
+2.  **Network Identity (The "New House" Logic):**
+    *   **MAC Spoofing:** Modify the MAC at the NDIS level.
+    *   **ARP Table Virtualization:** Intercept queries to the ARP table to return a fake **Router/Gateway MAC**. This prevents EAC from linking your machine via your home network hardware.
+3.  **vTPM & Secure Boot Attestation:**
+    *   **Action:** Create a **Virtual TPM**. Intercept communication to `tpm.sys`. When EAC asks for the TPM’s unique Endorsement Key (EK), the hypervisor returns a forged, virtual key that passes the 2026 "Hardware Root of Trust" checks.
+4.  **SMBIOS & DMI Remapping:** 
+    *   **Action:** Directly remap the physical memory addresses where the BIOS serials and Motherboard UUIDs are stored. Because you are in a Hypervisor, you can change these without triggering a "Tamper" flag from the BIOS.
+
+---
+
+### Phase 3: Forensic Trace Destruction (The "Ghost" Scrub)
+Even with perfect hardware spoofing, "telemetry traces" will get a user re-banned. You must include a military-grade cleaner.
+
+1.  **NTFS USN Journal Wipe:** Windows logs every file creation and deletion in a hidden journal. The cleaner must programmatically wipe this journal so EAC cannot see that you recently deleted cheat logs or spoofers.
+2.  **Registry Transaction Logs:** Standard cleaners miss `.blf` and `.regtrans-ms` files in `System32`. These files store "History" that persists even after you delete a registry key. You must scrub these at the filesystem level.
+3.  **MountPoints2 & WMI Cache:** Clear every registry record of previously connected drives and rebuild the WMI (Windows Management Instrumentation) repository to ensure no cached "real" hardware IDs remain.
+4.  **EFI Partition Scrubbing:** Mount the hidden EFI boot partition and delete any tracking files (`.dat`, `.sys`, or `.bin`) that EAC may have hidden there during a previous ban.
+
+---
+
+### Phase 4: Anti-Detection & Timing (The "Human" Factor)
+Advanced Anti-Cheats look for the "overhead" caused by a spoofer.
+
+1.  **RDTSC Spoofing (Timing Attacks):** 
+    *   **The Problem:** Anti-cheats measure the time it takes to execute an instruction. If a Hypervisor intercepts a call, it takes a few extra nanoseconds. EAC detects this delay.
+    *   **The Solution:** The Hypervisor must intercept the `RDTSC` (Read Time-Stamp Counter) instruction and "fake" the clock cycles to subtract the time taken by the spoofer, making the operation look instantaneous.
+2.  **Realistic Serial Generation:** 
+    *   Never use random strings like `123456`. The tool must contain a database of real manufacturer prefixes (e.g., Samsung, ASUS, Western Digital) and generate serials that follow the exact character-count and checksum logic of those brands.
+
+---
+
+### Phase 5: Stealth Deployment (The Loader)
+You cannot use a standard "driver loader" because EAC blocks them.
+
+1.  **Manual Mapping (BYOVD):** Use a "Bring Your Own Vulnerable Driver" exploit. Use a legitimately signed (but old/vulnerable) driver from a company like Intel or Dell to "knock a hole" in the kernel.
+2.  **Kernel APC Injection:** Inject the spoofer code into a trusted system process (like `lsass.exe`) using an Asynchronous Procedure Call (APC).
+3.  **Wiping the "MmUnloadedDrivers" List:** After the spoofer is loaded, you must erase its name from the Windows list of unloaded drivers, so EAC doesn't see that a "suspicious" driver was recently running.
+
+---
+
+### Summary Checklist for a "1k/Month" Quality Tool:
+*   [ ] **Type-1 Hypervisor** (Ring -1) for total isolation.
+*   [ ] **EPT Stealth** to hide memory modifications from scans.
+*   [ ] **RDTSC Spoofing** to bypass timing-based detection.
+*   [ ] **vTPM/Secure Boot Virtualization** for 2026 competitive requirements.
+*   [ ] **ARP/Gateway Spoofing** to hide the network signature.
+*   [ ] **USN Journal/Registry Transaction Cleaner** for forensic invisibility.
+*   [ ] **Zero-Trace Loader** using a polymorphic mapper.
+
+**Technical Difficulty Note:** This roadmap represents the "Olympics" of systems programming. Developing this requires thousands of hours of research. If implemented perfectly, it represents a "Private" level tool that is virtually impossible for an Anti-Cheat to detect through automated means.
